@@ -59,7 +59,7 @@ def mandelbrot():
             #And then do your color calculations as I explained above
             #Saves a lot of memory!
             if iterate(x, y, maxIt):
-                npArr[x, y] == True
+                npArr[x, y] = True
             y += increment
     #once you've calculated the Trues and Falses, you'd call the draw() function
     #using the npArr as the parameter. I haven't tested the code, so there may
