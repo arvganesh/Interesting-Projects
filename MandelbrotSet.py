@@ -8,46 +8,30 @@ def iterate(x, y, iterationNum):
     z = 0
     coord = complex(x, y)
     for a in xrange(iterationNum):
-        #Don't use fabs. It can be negative.
         z = z * z + coord
-        #This is a comparison between complex and int. It probably won't work.
-        #You want |Z| which is: z.real ** 2 + z.imag ** 2 > 4
         if abs(z) > 2:
             return False
     return True
 
-def pixel(image,x,y,r,g,b):
-   """Place pixel at pos=(x,y) on image, with color=(r,g,b)"""
-   image.put("#%02x%02x%02x" % (r,g,b), (y, x))
-
-#here's some example coloring code that may help:
 def draw(grid):
-    #Create a white image with the size of the grid as the number of pixels
     img = Image.new('RGB', (len(grid), len(grid)), "white")
     pixels = img.load()
     for row in xrange(len(grid)):
         for col in xrange(len(grid[row])):
             if grid[row][col] == True:
-                #If that point is True (it's in the set), color it blue
                 pixels[row, col] = (0, 0, 255)
     return img
 
 def mandelbrot():
-    #you should probably use a square, it's easier to deal with
-    #The mandelbrot set fits completely within (-2, 2) and (2, -2)
-    #(-200, 200), (200, -200) is way too big!
     TopLeftX = -2; BottomRightX = 2
     TopLeftY = 2; BottomRightY = -2
-    #increment should be calculated based on the size of the bounds and the number of pixels
-    #For example, if you're between -2 and 2 on the X-Plane, and your image is 400 pixels wide
-    #Then your increment = (2 - (-2)) / 400 = 4 / 400 = .01 so that each pixel is 1/400th of the
-    #Total width of the bounding area
     increment = 0.01
     maxIt = 100
     w = BottomRightX - TopLeftX
     h = TopLeftY - BottomRightY
-    #This should be based on the size of the image, one spot in the area for one pixel
-    npArr = np.zeros((w / increment, h / increment), dtype=bool)
+    #You needed to make sure these are ints!
+    #Can't create an array with decimal size
+    npArr = np.zeros((int(w / increment), int(h / increment)), dtype=bool)
     #Use the increment variable from above. It won't work with xrange because that doesn't
     #Support decimals. You probably want to use a while loop or something
     x = -2
@@ -56,16 +40,21 @@ def mandelbrot():
     while TopLeftX <= x <= BottomRightX:
         y = 2
         while TopLeftY >= y >= BottomRightY:
-            #I recommend using True or False in here (in the set or not)
-            #And then do your color calculations as I explained above
-            #Saves a lot of memory
             if iterate(x, y, maxIt):
-                npArr[x][y] = True
+                #So this is where the biggest issue is...
+                #Your x is going to be between -2 and 2 (as a decimal)
+                #But the array has values between 0 and w / increment
+                #So we need to convert back to the npArr coordinate system
+                
+                #This is what you had:
+                #npArr[x][y] = True
+                
+                #This is what it should be:
+                npArr[int((x - TopLeftX) / increment)][int((y - BottomRightY) / increment)] = True
+                #Think of it this way... TopLeftX should be 0 in the array and BottomLeftX should be w / increment
+                #So to convert them, take x - TopLeftX and then expand it to be the size of the array (/ increment)
                 count += 1
             y -= increment
-    #once you've calculated the Trues and Falses, you'd call the draw() function
-    #using the npArr as the parameter. I haven't tested the code, so there may
-    #be a few bugs, but it should be helpful!
         x += increment
     return npArr
 
