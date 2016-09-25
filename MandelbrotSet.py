@@ -7,12 +7,12 @@ from PIL import Image
 def iterate(x, y, iterationNum):
     z = 0
     coord = complex(x, y)
-    while iterationNum:
+    for a in xrange(iterationNum):
         #Don't use fabs. It can be negative.
-        z = math.fabs(z * z) + coord
+        z = z * z + coord
         #This is a comparison between complex and int. It probably won't work.
         #You want |Z| which is: z.real ** 2 + z.imag ** 2 > 4
-        if z ** 2 > 4:
+        if abs(z) > 2:
             return False
     return True
 
@@ -50,20 +50,23 @@ def mandelbrot():
     npArr = np.zeros((w / increment, h / increment), dtype=bool)
     #Use the increment variable from above. It won't work with xrange because that doesn't
     #Support decimals. You probably want to use a while loop or something
-    x = TopLeftX
-    y = TopLeftY
-    while TopLeftX < x < BottomRightX:
-        x += increment
-        while TopLeftY < y < BottomRightY:
+    x = -2
+    y = 2
+    count = 0
+    while TopLeftX <= x <= BottomRightX:
+        y = 2
+        while TopLeftY >= y >= BottomRightY:
             #I recommend using True or False in here (in the set or not)
             #And then do your color calculations as I explained above
-            #Saves a lot of memory!
+            #Saves a lot of memory
             if iterate(x, y, maxIt):
-                npArr[x, y] = True
-            y += increment
+                npArr[x][y] = True
+                count += 1
+            y -= increment
     #once you've calculated the Trues and Falses, you'd call the draw() function
     #using the npArr as the parameter. I haven't tested the code, so there may
     #be a few bugs, but it should be helpful!
+        x += increment
     return npArr
 
 img = draw(mandelbrot())
